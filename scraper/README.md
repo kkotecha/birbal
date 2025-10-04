@@ -2,12 +2,37 @@
 
 This scraper extracts all 358 sections of the Bharatiya Nyaya Sanhita (BNS) 2023 from advocatekhoj.com and formats them for the BNS Predictor project.
 
-## Files
+## 🎯 PRODUCTION FILE
+
+**LOCATION:** `../backend/data/bns_sections_PRODUCTION.json` (874KB)
+
+The production file has been moved to `backend/data/` for easier access by the backend application.
+
+This is the complete, production-ready BNS data with:
+- ✅ All 358 sections
+- ✅ Hierarchical subsection structure
+- ✅ Illustrations extracted
+- ✅ Explanations extracted
+- ✅ Full text for embeddings
+- ✅ Complete metadata
+
+## Scripts
 
 - `scrape_bns.py` - Main scraper for all 358 sections
+- `extract_illustrations.py` - Extract illustrations/explanations
+- `reorganize_structure.py` - Create hierarchical structure
+- `validate_data.py` - Validate data quality
 - `scrape_sample.py` - Sample scraper for testing (first 20 sections)
 - `test_scraper.py` - Quick test script
 - `requirements.txt` - Python dependencies
+
+## Archive Files (DO NOT USE)
+
+These are intermediate files kept for reference:
+- `_ARCHIVE_bns_sections_raw.json` - Original scraped data
+- `_ARCHIVE_bns_sections_enhanced.json` - With illustrations/explanations
+- `_ARCHIVE_bns_sections_sample.json` - Test sample (20 sections)
+- `_ARCHIVE_bns_sections_sample_test.json` - Test output
 
 ## Usage
 
