@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://birbal-production.up.railway.app';
 
 // DOM Elements
 const crimeInput = document.getElementById('crimeInput');
