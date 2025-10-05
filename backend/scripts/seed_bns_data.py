@@ -48,10 +48,7 @@ def seed_bns_data(json_file_path: str):
             'subsections': section['subsections'],
             'illustrations': section.get('illustrations', []),
             'explanations': section.get('explanations', []),
-            'category': metadata['category'],
-            'severity': metadata['severity'],
-            'keywords': metadata.get('keywords', []),
-            'essential_elements': metadata['essential_elements'],
+            'metadata': metadata,
             'embedding': embedding
         }
 
