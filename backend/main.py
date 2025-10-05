@@ -16,6 +16,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://neobirbal.vercel.app",
         "https://birbal.vercel.app",
         "https://birbal-*.vercel.app",  # Vercel preview deployments
         "http://localhost:3000",  # Local development
