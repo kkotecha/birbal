@@ -9,7 +9,7 @@ langchain-openai==0.2.14
 langgraph==0.2.60
 
 # Supabase
-supabase==2.21.1
+supabase==2.10.0
 
 # Database
 sqlalchemy==2.0.36
