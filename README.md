@@ -1,149 +1,171 @@
-# Birbal - BNS Section Predictor
+# Birbal - AI-Powered Legal Section Predictor
 
-AI assistant for Indian police officers to identify applicable BNS (Bhartiya Nyaya Sanhita) sections from crime descriptions.
+An AI assistant that predicts applicable BNS (Bharatiya Nyaya Sanhita) sections from natural language crime descriptions. Built for Indian law enforcement to quickly identify relevant legal provisions using semantic search and LLM reasoning.
 
-## Project Status
+**Live Demo:** [neobirbal.vercel.app](https://neobirbal.vercel.app)
 
-### ✅ Completed
-- Web scraper for BNS sections from advocatekhoj.com
-- Data extraction and formatting pipeline
-- Sample dataset (20 sections) validated
-- Project structure created
+## Why This Project
 
-### ⏳ Next Steps
-1. Run full BNS scraper (358 sections)
-2. Set up Supabase database
-3. Implement backend (FastAPI + LangGraph)
-4. Create frontend interface
-5. Deploy to Railway + Vercel
+India's new criminal code (BNS, replacing IPC) has 358 sections across 20 chapters. Police officers filing FIRs need to identify the correct legal sections from a verbal crime description — often under time pressure, sometimes in Hindi or Hinglish. This project explores whether a multi-agent AI system with vector search can reliably map unstructured crime narratives to structured legal provisions.
 
-## Quick Start
+The core product question: **Can an LLM combined with vector similarity search provide accurate, explainable legal section predictions from informal language inputs?**
 
-### 1. Scrape BNS Data
+## What It Does
+
+1. Officer describes a crime in natural language (English, Hindi, or Hinglish)
+2. A **Crime Refiner agent** normalizes and translates the input
+3. A **BNS Predictor agent** performs vector similarity search across 358 sections, then uses LLM reasoning to rank matches
+4. Returns 3-7 applicable sections with confidence scores (0.60–0.95) and legal reasoning
+
+## Architecture
+
+```
+User Input (Hindi/English/Hinglish)
+        │
+        ▼
+┌─────────────────────┐
+│   Crime Refiner     │  ← Translates, normalizes input
+│   (LangGraph Node)  │
+└────────┬────────────┘
+         │
+         ▼
+┌─────────────────────┐     ┌──────────────────────┐
+│   BNS Predictor     │────▶│  Supabase pgvector    │
+│   (LangGraph Node)  │     │  (358 BNS sections)   │
+└────────┬────────────┘     └──────────────────────┘
+         │
+         ▼
+   Ranked Sections + Confidence Scores + Legal Reasoning
+```
+
+**Orchestration:** LangGraph (two-node sequential workflow)
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | FastAPI (Python) |
+| Agent Orchestration | LangGraph |
+| LLM | OpenAI GPT-4o-mini |
+| Vector Database | Supabase (PostgreSQL + pgvector) |
+| Frontend | HTML, Tailwind CSS, Vanilla JS |
+| Deployment | Railway (backend) + Vercel (frontend) |
+
+## Key Concepts Explored
+
+This project is a practical case study in several areas relevant to AI product development:
+
+**1. Domain-Specific RAG (Retrieval-Augmented Generation)**
+Unlike generic chatbots, this system retrieves from a curated legal corpus. The challenge is that legal language is precise but crime descriptions are messy — the retrieval layer must bridge that gap.
+
+**2. Multi-Agent Workflows with LangGraph**
+Even a simple two-agent pipeline (refiner → predictor) demonstrates the value of separating concerns: one agent handles input normalization, another handles domain reasoning. This pattern scales to more complex workflows.
+
+**3. Data Pipeline: Web Scraping → Structured Data → Embeddings**
+The scraper extracts 358 sections from advocatekhoj.com, structures them with metadata (severity, category, keywords), and seeds them into pgvector. This end-to-end pipeline is reusable for any domain corpus.
+
+**4. Confidence Scoring for LLM Outputs**
+Rather than returning binary yes/no, the system provides calibrated confidence scores — critical for legal applications where false positives have real consequences.
+
+## Getting Started
+
+### Prerequisites
+- Python 3.9+
+- OpenAI API key
+- Supabase account (free tier works)
+
+### Setup
+
+```bash
+# Clone the repo
+git clone https://github.com/kkotecha/birbal.git
+cd birbal
+
+# Backend setup
+cd backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Add your OPENAI_API_KEY, SUPABASE_URL, SUPABASE_KEY
+
+# Seed the database (first time only)
+python scripts/seed_bns_data.py
+
+# Start the backend
+python main.py
+# API available at http://localhost:8000
+```
+
+```bash
+# Frontend (separate terminal)
+cd frontend
+python3 -m http.server 3000
+# Visit http://localhost:3000
+```
+
+### Data: Scraping BNS Sections
 
 ```bash
 cd scraper
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 
-# Test with sample (20 sections)
+# Quick test (20 sections)
 python3 scrape_sample.py
 
-# Full scraping (358 sections, ~6 minutes)
+# Full scrape (358 sections, ~6 minutes)
 python3 scrape_bns.py
 ```
 
-Output: `bns_sections.json` with all sections
+## For Practitioners: How to Use This Repo
 
-### 2. Set Up Database
+If you're a product manager or developer looking to understand AI-powered domain search, here's a suggested path:
 
-See `SCRAPING_GUIDE.md` for complete instructions.
+**Step 1: Understand the data layer**
+Start with `scraper/scrape_bns.py` — see how raw HTML becomes structured JSON with categories, severity levels, and keywords. Then look at `backend/scripts/seed_bns_data.py` to see how that data gets embedded and stored in pgvector.
+
+**Step 2: Trace a single request**
+Read `backend/graph/bns_workflow.py` to understand the LangGraph workflow. Then follow the flow: `agents/crime_refiner.py` (input processing) → `tools/vector_search.py` (retrieval) → `agents/bns_predictor.py` (LLM reasoning).
+
+**Step 3: Experiment with prompts**
+The agent prompts in `agents/bns_predictor.py` are where the legal reasoning happens. Try modifying them — adjust confidence thresholds, change the number of returned sections, or add additional reasoning criteria.
+
+**Step 4: Adapt to your domain**
+The pattern here (scrape domain data → embed → retrieve → reason) works for any specialized corpus: medical codes, tax regulations, compliance rules, product catalogs. Replace the BNS data with your domain and the agents with your reasoning logic.
 
 ## Project Structure
 
 ```
 birbal/
-├── README.md                    # This file
-├── SCRAPING_GUIDE.md           # Detailed scraping instructions
-│
-├── scraper/                     # BNS data scraper
-│   ├── scrape_bns.py           # Main scraper (358 sections)
-│   ├── scrape_sample.py        # Sample scraper (20 sections)
-│   ├── test_scraper.py         # Test script
-│   ├── requirements.txt        # Dependencies
-│   ├── README.md               # Scraper docs
-│   └── bns_sections_sample.json # Sample output
-│
-├── backend/                     # FastAPI + LangGraph (TODO)
-│   ├── agents/                 # LangGraph agents
-│   ├── tools/                  # LangChain tools
-│   ├── graph/                  # Workflow definitions
-│   └── scripts/                # Utility scripts
-│
-├── frontend/                    # HTML/CSS/JS UI (TODO)
-│
-└── supabase/                    # Database migrations (TODO)
+├── backend/
+│   ├── main.py                    # FastAPI application
+│   ├── agents/
+│   │   ├── bns_predictor.py       # Legal reasoning agent
+│   │   └── crime_refiner.py       # Input normalization agent
+│   ├── graph/
+│   │   └── bns_workflow.py        # LangGraph workflow
+│   ├── tools/
+│   │   ├── vector_search.py       # pgvector similarity search
+│   │   └── supabase_client.py     # Database client
+│   ├── scripts/
+│   │   └── seed_bns_data.py       # Database seeding with embeddings
+│   └── data/
+│       └── bns_sections_PRODUCTION.json  # 358 BNS sections
+├── frontend/
+│   ├── index.html
+│   ├── app.js
+│   └── styles.css
+├── scraper/
+│   ├── scrape_bns.py              # Full scraper (358 sections)
+│   ├── scrape_sample.py           # Test scraper (20 sections)
+│   └── validate_data.py           # Data quality checks
+└── supabase/
     └── migrations/
+        └── 001_initial_schema.sql  # Database schema with pgvector
 ```
-
-## Data Format
-
-Each BNS section is structured as:
-
-```json
-{
-  "section_number": "103",
-  "title": "Murder",
-  "description": "Full section text...",
-  "essential_elements": {
-    "mens_rea": ["intentional", "knowledge"],
-    "actus_reus": [],
-    "requirements": ["Detailed requirements..."]
-  },
-  "punishment": "Death or imprisonment for life, and fine",
-  "category": "violence",
-  "severity": "very_serious",
-  "keywords": ["murder", "death", "intentionally"]
-}
-```
-
-### Categories
-- `violence` - Assault, murder, hurt
-- `property` - Theft, robbery, burglary
-- `fraud` - Cheating, forgery, breach of trust
-- `sexual` - Offences against women/children
-- `cyber` - IT-related offences
-- `public_order` - Riots, unlawful assembly
-- `economic` - Economic offences
-- `other` - General provisions
-
-### Severity Levels
-- `minor` - Fine only
-- `moderate` - Imprisonment < 3 years
-- `serious` - Imprisonment 3-7 years
-- `very_serious` - > 7 years, life, or death
-
-## Tech Stack
-
-**Backend:**
-- FastAPI (Python)
-- LangGraph (Agent orchestration)
-- OpenAI GPT-4o-mini
-- Supabase (PostgreSQL + pgvector)
-- Arize Phoenix (Observability)
-
-**Frontend:**
-- HTML/CSS/JavaScript
-- Tailwind CSS
-
-**Deployment:**
-- Backend: Railway ($5/month)
-- Frontend: Vercel (free)
-- Database: Supabase (free tier)
-
-## Data Source
-
-**Website:** https://www.advocatekhoj.com/library/bareacts/bharatiyanyayasanhita/
-
-**Structure:**
-- 20 Chapters
-- 358 Sections
-- Each section has dedicated page with full text
-
-## Contributing
-
-See `SCRAPING_GUIDE.md` for detailed instructions on:
-- Running the scraper
-- Validating data
-- Improving extraction
-- Using official sources
 
 ## License
 
 MIT
-
-## Support
-
-For issues with:
-- **Scraper**: Check `scraper/README.md`
-- **Data format**: See `SCRAPING_GUIDE.md`
-- **Project setup**: See original project spec
