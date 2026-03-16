@@ -4,8 +4,6 @@ An AI assistant that predicts applicable **BNS (Bharatiya Nyaya Sanhita)** secti
 
 **Ships with the entire BNS corpus** — all 358 sections pre-chunked, structured with metadata (severity, category, keywords, essential elements), and ready to seed into Supabase with a single command. No data collection needed to get started.
 
-**Live Demo:** [neobirbal.vercel.app](https://neobirbal.vercel.app)
-
 ## Why This Project
 
 India's new criminal code (BNS, replacing IPC) has 358 sections across 20 chapters. Police officers filing FIRs need to identify the correct legal sections from a verbal crime description — often under time pressure, sometimes in Hindi or Hinglish. This project explores whether a multi-agent AI system with vector search can reliably map unstructured crime narratives to structured legal provisions.
@@ -150,7 +148,6 @@ The LLM is prompted to provide legal reasoning alongside each score, making the 
 | Embeddings | **OpenAI text-embedding-3-small** | 1536-dimensional vectors for legal text |
 | Backend | FastAPI (Python) | API server |
 | Frontend | HTML, Tailwind CSS, Vanilla JS | Prediction UI |
-| Deployment | Railway (backend) + Vercel (frontend) | Cloud infrastructure |
 
 ## Key Concepts Explored
 
