@@ -62,16 +62,6 @@ This project ships with a **complete, production-ready legal corpus** — you do
 
 **Why this structure matters for RAG:** The `full_text` field is what gets embedded for vector search. But the structured metadata (category, severity, keywords, essential elements) enables **hybrid retrieval** — combining vector similarity with metadata filtering. The illustrations and explanations give the LLM additional legal context for reasoning, improving prediction accuracy.
 
-### Data Pipeline (Also Included)
-
-The complete pipeline that built this corpus is included — useful if you want to understand the process or adapt it for another legal domain:
-
-```
-Full BNS.docx (official source) → scrape_bns.py (web extraction from advocatekhoj.com)
-    → reorganize_structure.py (hierarchy + metadata) → validate_data.py (quality checks)
-    → bns_sections_PRODUCTION.json (ready for production)
-```
-
 **To seed the database:** One command generates embeddings for all 358 sections and loads them into Supabase:
 ```bash
 python scripts/seed_bns_data.py data/bns_sections_PRODUCTION.json
@@ -157,10 +147,7 @@ The BNS corpus is finite (358 sections), structured (with metadata), and complet
 **2. Multi-Agent Workflow for Input Normalization + Domain Reasoning**
 Separating input processing from domain reasoning improves both. The Crime Refiner handles multilingual, informal input. The BNS Predictor handles precise legal matching. Neither agent needs to handle both concerns.
 
-**3. Data Pipeline: From Raw Legal Text to Searchable Embeddings**
-The included scraper and processing pipeline transforms raw legal HTML into structured JSON with hierarchical subsections, illustrations, explanations, and metadata — then seeds it into pgvector with embeddings. This pipeline is reusable for any legal or regulatory corpus.
-
-**4. Confidence Scoring for High-Stakes AI**
+**3. Confidence Scoring for High-Stakes AI**
 Legal applications can't tolerate black-box predictions. The confidence scoring system with explainable reasoning shows how to make LLM outputs auditable — a pattern applicable to any domain where incorrect predictions have consequences.
 
 ## Getting Started
@@ -210,21 +197,6 @@ python3 -m http.server 3000
 # Visit http://localhost:3000
 ```
 
-### Optional: Re-scrape the BNS Corpus
-
-The production data is already included, but if you want to understand the pipeline or refresh the data:
-
-```bash
-cd scraper
-pip install -r requirements.txt
-
-# Quick test (20 sections)
-python3 scrape_sample.py
-
-# Full scrape (358 sections, ~6 minutes)
-python3 scrape_bns.py
-```
-
 ## For Practitioners: How to Use This Repo
 
 If you're a product manager or developer exploring domain-specific AI, legal tech, or RAG with structured corpora, here's a suggested path.
@@ -268,16 +240,9 @@ birbal/
 │   ├── index.html
 │   ├── app.js
 │   └── styles.css
-├── scraper/
-│   ├── scrape_bns.py              # Full scraper (358 sections)
-│   ├── scrape_sample.py           # Test scraper (20 sections)
-│   ├── reorganize_structure.py    # Adds hierarchy + metadata
-│   ├── extract_illustrations.py   # Separates illustrations
-│   └── validate_data.py           # Data quality checks
 ├── supabase/
 │   └── migrations/
 │       └── 001_initial_schema.sql  # Database schema with pgvector
-├── Full BNS.docx                   # Official BNS source document
 └── README.md
 ```
 
